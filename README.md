@@ -46,6 +46,3 @@ API_KEY_REQUIRED=false
 ```bash
 docker-compose up -d --build
 ```
-
-## License
-MIT
