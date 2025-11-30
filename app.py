@@ -1,4 +1,5 @@
 import logging
+import os
 
 from flask import Flask
 from flask_cors import CORS  # Add this import
@@ -45,4 +46,5 @@ api = Api(
 api.add_namespace(downloads_ns)
 
 if __name__ == "__main__":
-    app.run(debug=(Config.FLASK_ENV == "development"), port=5000, host="127.0.0.1")
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, port=port, host="0.0.0.0")  # 0.0.0.0 for railway
