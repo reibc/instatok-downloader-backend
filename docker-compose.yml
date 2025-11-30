@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: reels-downloader-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - RATE_LIMIT_ENABLED=true
+      - RATE_LIMIT_PER_MINUTE=5
+      - RATE_LIMIT_PER_HOUR=50
+      - RATE_LIMIT_PER_DAY=200
+      - MAX_DOWNLOAD_SIZE_MB=500
+      - ALLOWED_DOMAINS=instagram.com,www.instagram.com,tiktok.com,www.tiktok.com,vm.tiktok.com
+      - API_KEY_REQUIRED=false
+      - API_KEY=your-secret-key-here
+      - SUPPORTED_PLATFORMS=instagram,tiktok
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge
