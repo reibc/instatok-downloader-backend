@@ -5,9 +5,8 @@ Backend API for downloading videos from Instagram and TikTok.
 ## Tech Stack
 - Python 3.11
 - Flask
-- Flask-RESTX (Swagger)
+- Flask-RESTX
 - Instaloader
-- yt-dlp
 
 ## Quick Start
 
