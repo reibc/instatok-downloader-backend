@@ -6,7 +6,8 @@ from werkzeug.exceptions import HTTPException
 
 from config import Config
 from extensions import limiter
-from middleware.security import require_api_key, sanitize_input, validate_content_type
+from middleware.security import (require_api_key, sanitize_input,
+                                 validate_content_type)
 from middleware.validators import validate_video_url
 from services.downloader_factory import DownloaderFactory
 

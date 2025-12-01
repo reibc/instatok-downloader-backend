@@ -1,7 +1,10 @@
 import logging
+import os
 
 from config import Config
 from services.base_downloader import BaseDownloader
+from services.instagram_alternative_downloader import \
+    InstagramAlternativeDownloader
 from services.instagram_downloader import InstagramDownloader
 from services.tiktok_downloader import TikTokDownloader
 
@@ -13,6 +16,7 @@ class DownloaderFactory:
 
     _downloaders = {
         "instagram": InstagramDownloader,
+        "instagram_alt": InstagramAlternativeDownloader,
         "tiktok": TikTokDownloader,
     }
 
@@ -23,17 +27,29 @@ class DownloaderFactory:
         """
         url_lower = url.lower()
 
+        use_alt_instagram = os.getenv("USE_ALT_INSTAGRAM", "false").lower() == "true"
+
         for platform_name in Config.SUPPORTED_PLATFORMS:
-            if platform_name not in cls._downloaders:
+            if platform_name not in ["instagram", "tiktok"]:
                 logger.warning(f"Platform {platform_name} not implemented")
                 continue
 
-            downloader_class = cls._downloaders[platform_name]
-            downloader = downloader_class()
+            if platform_name == "instagram":
+                if "instagram.com" in url_lower:
+                    if use_alt_instagram:
+                        logger.info("Using alternative Instagram downloader (FastDL)")
+                        return InstagramAlternativeDownloader()
+                    else:
+                        logger.info("Using standard Instagram downloader")
+                        return InstagramDownloader()
 
-            if downloader.validate_url(url_lower):
-                logger.info(f"Selected downloader: {platform_name}")
-                return downloader
+            if platform_name in cls._downloaders:
+                downloader_class = cls._downloaders[platform_name]
+                downloader = downloader_class()
+
+                if downloader.validate_url(url):
+                    logger.info(f"Selected downloader: {platform_name}")
+                    return downloader
 
         raise ValueError(
             f"Unsupported platform. Supported platforms: {', '.join(Config.SUPPORTED_PLATFORMS)}"
@@ -42,4 +58,4 @@ class DownloaderFactory:
     @classmethod
     def get_supported_platforms(cls) -> list[str]:
         """Get list of supported platforms"""
-        return list(cls._downloaders.keys())
+        return ["instagram", "tiktok"]
